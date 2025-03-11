@@ -1,6 +1,8 @@
 const express = require('express');
 const tourController = require('./../controllers/tourController');
 const authController = require('./../controllers/authController');
+const reviewController = require('./../controllers/reviewController');
+const reviewRouter = require('../routes/reviewRoutes');
 
 //also export controller functions as destructured
 // const {getTours, getTour} = require('./../controllers/tourController');
@@ -9,6 +11,13 @@ const authController = require('./../controllers/authController');
 // router.param('id', tourController.checkId) ;
 
 const router = express.Router();
+
+//nested routes -- indicating parent and chile relation
+//  router.route('/:id/reviews')
+// .post(authController.protect, authController.restrictedTo('user'), reviewController.store);
+   /******      ANOTHER VERSION OF NESTED ROUTES   */
+
+router.use('/:tourId/reviews', reviewRouter);
 
 
 router.route('/top-five-cheap')
@@ -26,5 +35,7 @@ router.route('/')
 
 router.route('/:id').get(tourController.getTour).patch(tourController.updateTour)
 .delete(authController.protect, authController.restrictedTo('admin', 'lead-guide'), tourController.deleteTour);
+
+
 
 module.exports = router;

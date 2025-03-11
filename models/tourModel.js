@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+const User = require('./userModal');
 
 const tourSchema = mongoose.Schema({
     name:{
@@ -75,7 +76,33 @@ const tourSchema = mongoose.Schema({
     secretTour: {
         type: Boolean,
         default: false
-    }
+    },
+    startLocation: {
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [{
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+    }],
+    // guides: Array // THIS IS USED FOR EMBEDED REFERENCING
+    guides: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    }]
 }, 
 // this is needed to set virtual properties
 {
@@ -88,6 +115,14 @@ const tourSchema = mongoose.Schema({
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
+
+
+// VIRTUAL POPULATE
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+})
 
 /***************** MONGOOS MIDDLEWARES ***************/
 // just like as laravel observer
@@ -114,6 +149,15 @@ tourSchema.pre('save', function (next) {
 // });
 
 
+/**************  THIS IS USED FOR EMBEDED USER REFERENCING - NOT RECOMMENTED AT ALL  */
+// tourSchema.pre('save', async function (next) {
+//     const guidePromises = this.guides.map(async id => await User.findById(id));
+    
+//     this.guides = await Promise.all(guidePromises);
+//     next();
+// });
+
+
 // 2. QUERY MIDDLEWARE
 
 // 1.  pre
@@ -126,6 +170,13 @@ tourSchema.pre('save', function (next) {
 // to address the issue to give all the find method need regular expression
 tourSchema.pre(/^find/, function (next) {  // this is only works for find() but there many method starting find keyword
     this.find({ secretTour: { $ne: true }});
+    next();
+});
+tourSchema.pre(/^find/, function (next) {  // this is only works for find() but there many method starting find keyword
+    this.populate({
+        path: 'guides',
+        select: "-__v -passwordChangedAt"
+    }); 
     next();
 });
 

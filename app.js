@@ -1,14 +1,50 @@
 const express = require('express');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xssClean = require('xss-clean');
+const hpp = require('hpp'); 
 const app = express();
+
+
+//*****  GLOBAL MIDDLEWARE STACK   *****/
+
+
+//security middleware
+app.use(helmet());
+
+//rate limit middleware
+const limiter = rateLimit({
+  max:100,
+  windowMs: 60 * 60 * 1000,
+  message: "too many requests",
+});
+
+app.use('/api', limiter);
 
 //this is a middleware provided by express to inspect the POST request body, without this cant get rquest data
 app.use(express.json()); 
 
+//middleware to sanitize noSql injection eg: { $gt: ""}
+app.use(mongoSanitize());
+
+//middleware to clean malicious html code in the req body ; commonly know xss attack (cross site scripting)
+app.use(xssClean());
+
+//middleware to avoid parameter pollution - eg: query string ?sort=quantity&sort=price
+app.use(hpp({
+  //whitlisting properties to allow duplicates
+  whitelist: ['duration', 'ratingsQuantity']
+}));
+
+
+//middleware to logging
 if(process.env.NODE_ENV === 'development')
   app.use(morgan('dev'));
 
@@ -40,6 +76,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // route handler
 app.all('*', (req, res, next) => {

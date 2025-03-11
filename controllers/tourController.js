@@ -4,6 +4,7 @@ const { match } = require('assert');
 const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const factory = require('./../controllers/factoryHandler');
 
 
 
@@ -43,85 +44,89 @@ exports.topFiveCheap = (req, res, next) => {
     next();
 };
 
-exports.getTours = async (req, res) => {
 
-    try {
+///// GET ALLLLLLLLL  TOOOOUURRRSSSS
+// exports.getTours = async (req, res) => {
 
-        /****  making an hard copy of the request query  ******/
-        // const queryObj = req.query   => this will not copy, it storing same reference to the queryObj, so need to use destructuring
-        // const queryObj = {...req.query} // creating a new query object
-        // const excludedFields = ['page', 'limit', 'sort', 'fields'];
-        // excludedFields.forEach(field => delete queryObj[field]);
+//     try {
+
+//         /****  making an hard copy of the request query  ******/
+//         // const queryObj = req.query   => this will not copy, it storing same reference to the queryObj, so need to use destructuring
+//         // const queryObj = {...req.query} // creating a new query object
+//         // const excludedFields = ['page', 'limit', 'sort', 'fields'];
+//         // excludedFields.forEach(field => delete queryObj[field]);
 
 
-        // //Advanced filtering
-        // let queryStr = JSON.stringify(queryObj);
-        // queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, match => `$${match}`); //replacing gt to $gt and so on
+//         // //Advanced filtering
+//         // let queryStr = JSON.stringify(queryObj);
+//         // queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, match => `$${match}`); //replacing gt to $gt and so on
         
         
-        // let query = Tour.find(JSON.parse(queryStr));
+//         // let query = Tour.find(JSON.parse(queryStr));
 
-        /************ query using moongoss methods **************/
+//         /************ query using moongoss methods **************/
          
-            // const tours = await Tour.find()
-            // .where('duration').equals(req.query.duration)
-            // .where('difficulty').equals(req.query.difficulty);
-        // console.log(req.query.sort);
+//             // const tours = await Tour.find()
+//             // .where('duration').equals(req.query.duration)
+//             // .where('difficulty').equals(req.query.difficulty);
+//         // console.log(req.query.sort);
         
 
-        // //sorting
-        // if(req.query.sort){
-        //     const sortBy = req.query.sort.split(',').join(' ');
-        //     query = query.sort(sortBy); //mongoose accept mutiple columns as sort and '-' is used to desc
-        // }else {
-        //     query = query.sort('-createdAt');
-        // }
+//         // //sorting
+//         // if(req.query.sort){
+//         //     const sortBy = req.query.sort.split(',').join(' ');
+//         //     query = query.sort(sortBy); //mongoose accept mutiple columns as sort and '-' is used to desc
+//         // }else {
+//         //     query = query.sort('-createdAt');
+//         // }
 
         
-        //selecting/ignoring specific fields
-        // if(req.query.fields){
-        //     const fields = req.query.fields.split(',').join(' ');
-        //     query = query.select(fields); //mongoose accept mutiple columns as sort and '-' is used to desc
-        // }else {
-        //     query = query.select('-__v');  //ignore __v field
-        // }
+//         //selecting/ignoring specific fields
+//         // if(req.query.fields){
+//         //     const fields = req.query.fields.split(',').join(' ');
+//         //     query = query.select(fields); //mongoose accept mutiple columns as sort and '-' is used to desc
+//         // }else {
+//         //     query = query.select('-__v');  //ignore __v field
+//         // }
 
-        //pagination
-        // const page = req.query.page * 1 || 1;  //*1 means casting to number
-        // const limit = req.query.limit * 1 || 10;
-        // const skip = (page - 1) * limit;
-        // console.log(skip, 'skip');
+//         //pagination
+//         // const page = req.query.page * 1 || 1;  //*1 means casting to number
+//         // const limit = req.query.limit * 1 || 10;
+//         // const skip = (page - 1) * limit;
+//         // console.log(skip, 'skip');
         
-        // query = query.skip(skip).limit(limit);
+//         // query = query.skip(skip).limit(limit);
 
-        // if(req.query.page) {
-        //     const totalTours = await Tour.countDocuments();
-        //     if(skip >= totalTours) throw new Error('Page not available');
-        // }
+//         // if(req.query.page) {
+//         //     const totalTours = await Tour.countDocuments();
+//         //     if(skip >= totalTours) throw new Error('Page not available');
+//         // }
            
         
-        // const tours = await query; 
+//         // const tours = await query; 
 
-        const features = new APIFeatures(Tour.find(), req.query).filter().sort().limitFields().paginate();
-        const tours = await features.query;
+//         const features = new APIFeatures(Tour.find(), req.query).filter().sort().limitFields().paginate();
+//         const tours = await features.query;
 
-        res.status(200).json({
-            success: true,
-            results: tours.length,
-            data: {
-                tours,
-            }
-        });
-    } catch (error) {
-        res.status(500).json({
-            succss: false,
-            message: 'Something went wrong',
-            error: error
-        });
-    }
+//         res.status(200).json({
+//             success: true,
+//             results: tours.length,
+//             data: {
+//                 tours,
+//             }
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             succss: false,
+//             message: 'Something went wrong',
+//             error: error
+//         });
+//     }
 
     
-}
+// }
+
+exports.getTours = factory.getAll(Tour);
 
 /****************** GET TOUR ***************/
 // exports.getTour = async (req, res) => {
@@ -153,23 +158,37 @@ exports.getTours = async (req, res) => {
 //     }    
 // }
 
-exports.getTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findById(req.params.id);
-    //findById is a mongo function for findOne({_id: tour.id})
+
+//////////////////////   GET TOUR
+
+// exports.getTour = catchAsync(async (req, res, next) => {
+//     // const tour = await Tour.findById(req.params.id).populate('guides');
+
+//     //populate another version - populate is a perfoming another query like laravel relation; so huge apps might be have perfrmance issue
+//     // const tour = await Tour.findById(req.params.id).populate({
+//     //     path: 'guides',
+//     //     select: "-__v -passwordChangedAt"
+//     // }); 
+//     // populate is moved to query middleware
+
+//     const tour = await Tour.findById(req.params.id).populate('reviews')
+//     //findById is a mongo function for findOne({_id: tour.id})
     
-    if(!tour)
-        return next(new AppError('The tour is not found', 404));
+//     if(!tour)
+//         return next(new AppError('The tour is not found', 404));
     
-     res.status(200).json({
-        succss: true,
-        data: {
-            tour
-        }
-    });
-});
+//      res.status(200).json({
+//         succss: true,
+//         data: {
+//             tour
+//         }
+//     });
+// });
+
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
 
 
-
+/////////////////////////  ADD TOUR
 // before catchAsync()
 // exports.createTour = async (req, res) => {
 //     // id = tours.length + 1;
@@ -208,15 +227,17 @@ exports.getTour = catchAsync(async (req, res, next) => {
 // }
 
 // after catchAsync()
-exports.createTour = catchAsync(async (req, res) => {
-    const tour = await Tour.create(req.body);
-    res.status(200).json({
-        message: 'success',
-        data: {
-            tour
-        }
-    });
-});
+// exports.createTour = catchAsync(async (req, res) => {
+//     const tour = await Tour.create(req.body);
+//     res.status(200).json({
+//         message: 'success',
+//         data: {
+//             tour
+//         }
+//     });
+// });
+
+exports.createTour = factory.createOne(Tour);
 
 
 /***************** UPDATE TOUR *****************/
@@ -241,23 +262,26 @@ exports.createTour = catchAsync(async (req, res) => {
 //     }
 // }
 
-exports.updateTour = catchAsync( async (req, res) => 
-    {
-        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
+////////////////////   UPDATE TOUR  ///////////////////
+// exports.updateTour = catchAsync( async (req, res, next) => 
+//     {
+//         const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//             new: true,
+//             runValidators: true
+//         });
 
-        if(!tour)
-            return next(new AppError('The tour is not found', 404));
+//         if(!tour)
+//             return next(new AppError('The tour is not found', 404));
 
-        res.status(200).json({
-            message: 'success',
-            data: {
-                tour
-            }
-        });
-    });
+//         res.status(200).json({
+//             message: 'success',
+//             data: {
+//                 tour
+//             }
+//         });
+//     });
+exports.updateTour = factory.updateOne(Tour);
+
 
 /******************  DELETE TOUR **********/    
 // exports.deleteTour = async (req, res) => 
@@ -278,19 +302,23 @@ exports.updateTour = catchAsync( async (req, res) =>
 
 // }
 
-exports.deleteTour = catchAsync(async (req, res) => 
-{
-    const tour = await Tour.findByIdAndDelete(req.params.id);
+
+//////////////////    DELETE   ////////////////
+// exports.deleteTour = catchAsync(async (req, res, next) => 
+// {
+//     const tour = await Tour.findByIdAndDelete(req.params.id);
     
-    if(!tour)
-        return next(new AppError('The tour is not found', 404));
+//     if(!tour)
+//         return next(new AppError('The tour is not found', 404));
 
-    res.status(200).json({
-        success: true,
-        message: 'Tour deleted successfully',
-    });
+//     res.status(200).json({
+//         success: true,
+//         message: 'Tour deleted successfully',
+//     });
 
-});
+// });
+
+exports.deleteTour = factory.deleteOne(Tour);
 
 exports.tourStats = async (req, res) => {
     try {

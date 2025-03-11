@@ -46,7 +46,11 @@ const userSchema = mongoose.Schema(
         default: 'user',
       },
       passwordResetToken: String,
-      passwordExpiredAt: Date,
+      passwordResetExpires: Date,
+      active: {
+        type: Boolean,
+        select: false
+      }
     },
     {
       timestamps: true, // Automatically add createdAt and updatedAt fields
@@ -64,13 +68,26 @@ const userSchema = mongoose.Schema(
     next();
   });
 
+  //for password reset
+  userSchema.pre('save', async function(next) {
+    if(!this.isModified('password') || this.isNew) return next();
+
+    this.passwordChangedAt = Date.now() - 1000;  //-1000 is used to avoid token is issue after the password chnaged at;
+    next();
+  });
+
+  userSchema.pre(/^find/,  function(next) {
+    this.find({ active: {$ne: false} }); // this prevents documents getting empty which are not having the active field
+    next();
+  });
+
   userSchema.methods.correctPassword = async function(candidatePassword, userPassword) { 
     return await bcrypt.compare(candidatePassword, userPassword);
   }
 
   userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {     
-    if(this.passwordChangedAt){
-      const changedTimestamp = parseInt(this.passwordChangedAt.Date.getTime() / 1000, 10);
+    if(this.passwordChangedAt){      
+      const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
       return changedTimestamp > JWTTimestamp;
     }
     
@@ -82,7 +99,7 @@ const userSchema = mongoose.Schema(
 
     this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
-    this.passwordExpiredAt = Date.now() + 10 * 60* 1000;
+    this.passwordResetExpires = Date.now() + 10 * 60* 1000;
     
     return resetToken;
   }
