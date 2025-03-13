@@ -35,6 +35,7 @@ const tourSchema = mongoose.Schema({
         default: 4.5,
         min: [1.0, 'Rating must be alteast 1.0'],
         max: [5.0, 'Rating must not be exceed 5.0'],
+        set: val => Math.round(val * 10) / 10  
     },
     ratingsQuantity: {
         type: Number,
@@ -110,6 +111,12 @@ const tourSchema = mongoose.Schema({
     toObject: { virtuals : true}
 });
 
+// tourSchema.index({ price: 1 });  // single index, indexing one by one, it will not be deleted after add in db, need to delete manually.
+tourSchema.index({ price: 1, ratingsAverage: -1 });  // compound index (indexing mutiple fields);
+tourSchema.index({ slug: 1 });
+
+//this is geo spatial value field, so need to use 2d if fictional point or 2dsphere if the data is real points index
+tourSchema.index({ startLocation: '2dsphere' })
 
 //virtual properties - like laravel accessor
 tourSchema.virtual('durationWeeks').get(function () {
@@ -130,9 +137,7 @@ tourSchema.virtual('reviews', {
 // 1. DOCUMENT MIDDLEWARES
 
 // 1. Pre MIDDLEWARE  - runs when create() || save(), not runs in insert many
-tourSchema.pre('save', function (next) {
-    console.log(this);
-    
+tourSchema.pre('save', function (next) {    
     this.slug = slugify(this.name, {lower: true});
     next();
 });
@@ -182,15 +187,15 @@ tourSchema.pre(/^find/, function (next) {  // this is only works for find() but 
 
 // 2. post
 tourSchema.post(/^find/, function (docs, next) { 
-    console.log(docs);
+    // console.log(docs);
     next();
 });
 
 // 3. AGGREGATION MIDDLEWARE - RUNS FOR AGGRATION PIPELINE
-tourSchema.pre('aggregate', function (next) { // if we want add some stage to the aggregation pipeline
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } }});
-    next();
-});
+// tourSchema.pre('aggregate', function (next) { // if we want add some stage to the aggregation pipeline
+//     this.pipeline().unshift({ $match: { secretTour: { $ne: true } }});
+//     next();
+// });
 
 
 const Tour = mongoose.model('Tour', tourSchema);

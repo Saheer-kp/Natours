@@ -1,6 +1,7 @@
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const User = require("./../models/userModal");
+const factory = require('./../controllers/factoryHandler');
 
 const filterObj = (obj, ...fields) => {
     const data = {};
@@ -23,7 +24,12 @@ exports.getUsers =  catchAsync(async (req, res, next) => {
             }
         });
 });
-exports.getUser =  (req, res) => {}
+
+exports.getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+};
+exports.getUser = factory.getOne(User);
 exports.createUser =  (req, res) => {}
 exports.updateUser =  (req, res) => {}
 exports.deleteUser =  (req, res) => {}

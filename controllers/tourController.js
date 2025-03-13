@@ -417,3 +417,66 @@ exports.toursPlan = async (req, res) => {
         });
     }
 }
+
+exports.toursWithin = catchAsync(async (req, res, next) => {
+
+    const { distance, latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    // the total radius of earth in miles is 3963.2 and in km is 6378.1, so need to find the radians(mongodb term) accordingly
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+    if(!lat || !lng) {
+        return next(new AppError('Please proving a location cordinates to find nearby tours'), 400);
+    }
+
+    const tours = await Tour.find({ startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } } })
+    
+    res.status(200).json({
+        success: true,
+        results: tours.length,
+        data: {
+            data: tours
+        }
+    });
+
+});
+
+exports.distances = catchAsync(async (req, res, next) => {
+
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+    if(!lat || !lng) {
+        return next(new AppError('Please proving a location cordinates to find nearby tours'), 400);
+    }
+
+    const distances = await Tour.aggregate(
+        [{
+            $geoNear: {
+                near: {
+                    type: 'Point',
+                    coordinates: [lng * 1, lat * 1],
+                },
+                distanceField: 'distance',
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            $project: {
+                distance: 1,
+                name: 1
+            }
+        }]
+    );
+    
+    res.status(200).json({
+        success: true,
+        data: {
+            data: distances
+        }
+    });
+
+});

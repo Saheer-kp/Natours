@@ -6,6 +6,8 @@ const AppError = require('../utils/appError');
 const { verify } = require('crypto');
 const sendEmail = require('../utils/email');
 const crypto = require('crypto');
+const factory = require('./../controllers/factoryHandler');
+
 
 
 const sendToken = (user, statusCode, res) => {
@@ -201,4 +203,6 @@ exports.changePassword = catchAsync(async(req, res, next) => {
         await user.save();
         sendToken(user, 200, res);
 });
+
+exports.me = factory.getOne(User);
 

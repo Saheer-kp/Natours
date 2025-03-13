@@ -9,12 +9,22 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
+const path = require('path');
 const hpp = require('hpp'); 
 const app = express();
 
 
+//setting up pug template as view engine - (another one is ejs)
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+
+
 //*****  GLOBAL MIDDLEWARE STACK   *****/
 
+//express middlware to access files from folder, this will allows to show the file in browser like html and media
+// app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public'))); // using path module - recommented to avoid issues with path
 
 //security middleware
 app.use(helmet());
@@ -48,8 +58,7 @@ app.use(hpp({
 if(process.env.NODE_ENV === 'development')
   app.use(morgan('dev'));
 
-//express middlware to access files from folder, this will allows to show the file in browser like html and media
-app.use(express.static(`${__dirname}/public`));
+
 
 // custom middlewares //- it is important to define middleware at the beginning..
 app.use((req, res, next) => {
@@ -74,6 +83,16 @@ app.use((req, res, next) => {
 // const userRouter = express.Router();
 
 
+// view routes
+app.get('/', (req, res) => {
+   res.status(200).render('base', {
+    tourName: 'The city lights',
+    userName: 'Shaheer'
+   });
+});
+
+
+//api routes
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/reviews', reviewRouter);

@@ -24,16 +24,36 @@ router.route('/top-five-cheap')
 .get(tourController.topFiveCheap, tourController.getTours)
 
 router.route('/tour-stats')
-.get(tourController.tourStats)
+.get(tourController.tourStats);
 
-router.route('/tour-plan/:year')
-.get(tourController.toursPlan)
+
+router.route('/tour-plan/:year').get(
+   authController.protect, 
+   authController.restrictedTo('admin', 'lead-guide', 'guide'),
+   tourController.toursPlan
+);
+
+//nearby tours
+router.route('/tours-within/:distance/center/:latlng/unit/:unit')
+.get(tourController.toursWithin);
+
+//tours with distances from the purticular location
+router.route('/tours-distances/:latlng/unit/:unit')
+.get(tourController.distances);
 
 router.route('/')
-.get(authController.protect, tourController.getTours)
-.post(tourController.createTour);
+.get(tourController.getTours)
+.post(
+   authController.protect,
+   authController.restrictedTo('admin', 'lead-guide'),
+   tourController.createTour
+);
 
-router.route('/:id').get(tourController.getTour).patch(tourController.updateTour)
+router.route('/:id').get(tourController.getTour).patch(
+   tourController.updateTour,
+   authController.protect, 
+   authController.restrictedTo('admin', 'lead-guide')
+)
 .delete(authController.protect, authController.restrictedTo('admin', 'lead-guide'), tourController.deleteTour);
 
 
