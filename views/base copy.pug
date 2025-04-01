@@ -1,0 +1,19 @@
+doctype html 
+html 
+    head
+        //initrpolation ie appending variables with text
+        title Natours | #{tourName}
+        link(rel='stylesheet' href='css/style.css')
+        link(rel='shortcut icon', href='img/favicon.png')
+    
+    body
+        h1= tourName 
+        //this is called buffer code, ie can use javascript
+        h2= userName.toUpperCase() 
+        h1 The first heading
+        p this is a p tag text
+
+        //unbuffer code ie we can use javascript without rendering
+        - const n = 2;
+
+        h1= 2 * n

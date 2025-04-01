@@ -2,6 +2,7 @@ const express = require('express');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const morgan = require('morgan');
@@ -84,12 +85,7 @@ app.use((req, res, next) => {
 
 
 // view routes
-app.get('/', (req, res) => {
-   res.status(200).render('base', {
-    tourName: 'The city lights',
-    userName: 'Shaheer'
-   });
-});
+app.use('/', viewRouter);
 
 
 //api routes
