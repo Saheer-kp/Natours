@@ -12,7 +12,8 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const path = require('path');
 const hpp = require('hpp'); 
-const app = express();
+const cookieParser = require('cookie-parser');
+const app = express(); 
 
 
 //setting up pug template as view engine - (another one is ejs)
@@ -29,6 +30,8 @@ app.use(express.static(path.join(__dirname, 'public'))); // using path module - 
 
 //security middleware
 app.use(helmet());
+
+app.use(cookieParser());
 
 //rate limit middleware
 const limiter = rateLimit({
@@ -64,6 +67,8 @@ if(process.env.NODE_ENV === 'development')
 // custom middlewares //- it is important to define middleware at the beginning..
 app.use((req, res, next) => {
     // console.log('middleware');
+    console.log(req.cookies);
+    
     next();
 });
 app.use((req, res, next) => { 

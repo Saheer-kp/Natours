@@ -49,7 +49,7 @@ reviewSchema.pre(/^find/, function(next) {
     // /removed tour populate as this is listing with tour
     this.populate({
         path:'user',
-        select: "name email"
+        select: "name email photo"
     });
 
     next();

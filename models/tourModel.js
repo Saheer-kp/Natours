@@ -124,7 +124,7 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 
-// VIRTUAL POPULATE
+// VIRTUAL POPULATE - this is for relation
 tourSchema.virtual('reviews', {
     ref: 'Review',
     foreignField: 'tour',
