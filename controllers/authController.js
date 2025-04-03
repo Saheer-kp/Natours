@@ -77,10 +77,7 @@ exports.login = async (req, res, next) => {
     if(!user || !user.correctPassword(password, user.password)) 
         return next(new AppError('Incorrect email or password'), 401);
 
-    res.status(200).json({
-        status: 'success',
-        token: signToken(user._id)
-    });
+    sendToken(user, 200, res);
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -89,6 +86,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
         token = req.headers.authorization.split(' ')[1];
+    }else if(req.cookies.jwt) {
+        token = req.cookies.jwt;
     }
   
     if(!token)
@@ -115,6 +114,43 @@ exports.protect = catchAsync(async (req, res, next) => {
     next();
     
 });
+exports.isloggedIn = async (req, res, next) => {
+    //getting token and verification
+    let token;
+    
+    if(req.cookies.jwt) {
+        try {
+            token = req.cookies.jwt;
+            if(!token)
+                return next(new AppError('Unauthenticated', 401));
+        
+            //verify token with jwt
+            const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+        
+            // verify the user is stille exists;
+            const authUser = await User.findById(decoded.id);
+            if(!authUser)
+                return next();
+        
+            
+            if(authUser.changedPasswordAfter(decoded.iat)) {
+            return next();
+            }
+                
+            //there is a looged in user and set it to locals to get in template
+            res.locals.user = authUser;
+            return next();
+        } catch (error) {
+            return next(); 
+        }
+        
+    }
+
+    next(); //simply allow if a non logged in user
+  
+   
+    
+};
 
 exports.restrictedTo = (...roles) => {
     
@@ -205,4 +241,12 @@ exports.changePassword = catchAsync(async(req, res, next) => {
 });
 
 exports.me = factory.getOne(User);
+
+exports.logout = (req, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    });
+    res.status(200).json({status: "success"});
+}
 

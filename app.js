@@ -67,7 +67,7 @@ if(process.env.NODE_ENV === 'development')
 // custom middlewares //- it is important to define middleware at the beginning..
 app.use((req, res, next) => {
     // console.log('middleware');
-    console.log(req.cookies);
+    console.log(req.cookies, 'cookie');
     
     next();
 });

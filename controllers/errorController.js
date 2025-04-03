@@ -20,38 +20,57 @@ const handleJWTExpiredError = () =>
    new AppError(`Unauthenticated`, 401);
 
 
-const errorDev = (err, res) => {
-  console.log(err.name);
+const errorDev = (err, req, res) => {
   
-  res.status(err.statusCode).json({   
-    staus: err.status,
-    message: err.message,
-    stack: err.stack,
-    error: err
-  });
-}
-
-const errorProd = (err, res) => {
-  if(err.operational){
-    console.log(111);
-    
-    res.status(err.statusCode).json({   
+  if(req.originalUrl.startsWith('/api')) {
+    return res.status(err.statusCode).json({   
       staus: err.status,
       message: err.message,
+      stack: err.stack,
+      error: err
     });
   }
-  else{
-    console.log(222);
-    
-// dont leak the error details to the client
-    // console.error('Error', err);
-    res.status(err.statusCode).json({   
-      staus: 'error',
-      message: 'Something went wrong',
-    });
-  }
-    
 
+  return res.status(err.statusCode).render('error', {
+    'title': 'Error',
+    'errorMsg': err.message
+  });
+ 
+}
+
+const errorProd = (err, req, res) => {
+  if(req.originalUrl.startsWith('/api')) {
+      if(err.operational){
+      
+      return res.status(err.statusCode).json({   
+          staus: err.status,
+          message: err.message,
+        });
+      }
+      
+      // dont leak the error details to the client
+      console.error('Error', err);
+      return res.status(err.statusCode).json({   
+        staus: 'error',
+        message: 'Something went wrong',
+      });
+  }
+  
+
+    if(err.operational){
+      return res.status(err.statusCode).render('error', {
+        'title': 'Error',
+        'errorMsg': err.message,
+      });
+    }
+    else{
+      // dont leak the error details to the client
+      console.error('Error', err);
+      return res.status(err.statusCode).render('error', {
+        'title': 'Error',
+        'errorMsg': "Something went wrong"
+      });
+    }
 }
 
 module.exports = (err, req, res, next) => {
@@ -59,17 +78,18 @@ module.exports = (err, req, res, next) => {
     err.status = err.status || 'error';
 
     if(process.env.NODE_ENV === 'development'){
-      errorDev(err, res);
+      errorDev(err, req, res);
     }
     if(process.env.NODE_ENV === 'production'){     
       let error = { ...err };
+      error.message = err.message;
       if(err.name === 'CastError') error = handleCastErrorDB(error);
       if(err.code === 11000) error = handleDuplicateErrorDB(error);
       if(err.name === 'ValidationError') error = handleValidationErrorDB(error);
       if(err.name === 'JsonWebTokenError') error = handleJWTError(error);
       if(err.name === 'TokenExpiredError') error = handleJWTExpiredError(error);
       
-      errorProd(error, res);
+      errorProd(error, req, res);
     }
   
 };
