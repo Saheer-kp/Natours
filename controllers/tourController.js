@@ -7,6 +7,51 @@ const AppError = require('./../utils/appError');
 const factory = require('./../controllers/factoryHandler');
 
 
+const multer = require('multer');
+
+//this is for normal file upload without resize
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {  //cd means callback
+        cb(null, 'public/img/tours')
+    },
+    filename: (req, file, cb) => {
+        if (!req.body.images) {
+            req.body.images = [];
+        }
+        const ext = file.mimetype.split('/')[1];
+        if (file.fieldname === 'imageCover') {
+            req.body.imageCover = `tour-${req.params.id}-cover-${Date.now()}.${ext}`;
+            cb(null, req.body.imageCover);
+        }
+        if (file.fieldname === 'images') {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            const imageName = `tour-${req.params.id}-image-${uniqueSuffix}.${ext}`;
+            req.body.images.push(imageName); // Push image name to the array
+            cb(null, imageName);
+        }
+        // cb(null, `tour-${req.params.id}-${Date.now()}.${ext}`)
+    }
+});
+
+
+const multerFilter = (req, file, cb) => {  //cd means callback
+    if(!file.mimetype.startsWith('image'))
+        cb(new AppError('File must be image', 400), false)
+    cb(null, true);
+};
+
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+});
+
+// exports.uploadTourImages = upload.single('imageCover');
+exports.uploadTourImages = upload.fields([
+    { name: 'imageCover', maxCount: 1 },
+    { name: 'images', maxCount: 3 },
+]);
+
+
 
 
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, 'utf-8'));

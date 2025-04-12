@@ -12871,12 +12871,11 @@ if (loginForm) {
 if (logOutBtn) logOutBtn.addEventListener('click', _login.logout);
 if (updateProfileForm) updateProfileForm.addEventListener('submit', function (e) {
   e.preventDefault();
-  var name = document.getElementById('name').value;
-  var email = document.getElementById('email').value;
-  (0, _updateSettings.updateSettings)({
-    name: name,
-    email: email
-  }, 'data');
+  var formData = new FormData();
+  formData.append('name', document.getElementById('name').value);
+  formData.append('email', document.getElementById('email').value);
+  formData.append('image', document.getElementById('photo').files[0]);
+  (0, _updateSettings.updateSettings)(formData, 'data');
 });
 if (updatePasswordForm) updatePasswordForm.addEventListener('submit', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
@@ -12937,7 +12936,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52467" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52480" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -50,9 +50,10 @@ router.route('/')
 );
 
 router.route('/:id').get(tourController.getTour).patch(
-   tourController.updateTour,
-   authController.protect, 
-   authController.restrictedTo('admin', 'lead-guide')
+   authController.protect,
+   authController.restrictedTo('admin', 'lead-guide'),
+   tourController.uploadTourImages,
+   tourController.updateTour
 )
 .delete(authController.protect, authController.restrictedTo('admin', 'lead-guide'), tourController.deleteTour);
 

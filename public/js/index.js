@@ -25,11 +25,12 @@ if(logOutBtn)
 if(updateProfileForm)
     updateProfileForm.addEventListener('submit', e => {
         e.preventDefault()
+        const formData = new FormData();
+        formData.append('name', document.getElementById('name').value);
+        formData.append('email', document.getElementById('email').value);
+        formData.append('image', document.getElementById('photo').files[0]);
     
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-    
-        updateSettings({name, email}, 'data');
+        updateSettings(formData, 'data');
     });
 
 if(updatePasswordForm)
