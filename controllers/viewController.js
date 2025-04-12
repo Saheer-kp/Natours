@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const User = require('../models/userModal');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -21,4 +22,28 @@ exports.tour = catchAsync(async (req, res, next) => {
      title: tour.name,
      tour
     });
+ });
+
+ exports.profile = catchAsync(async (req, res, next) => {
+    res.status(200).render('account', {
+        title: 'Profile',
+    });
+ });
+ 
+ exports.updateProfile = catchAsync(async (req, res, next) => {
+    console.log(req.body);
+    const updateUser = await User.findByIdAndUpdate(req.user.id, {
+        name: req.body.name,
+        email: req.body.email,
+    }, {
+        new: true,  //get the updated document as new refreshed data
+        runValidators: true
+    });
+
+    res.locals.user = updateUser;
+    res.status(200).redirect('/profile');
+    // res.status(200).render('account', {
+    //     title: 'Profile',
+    //     user: updateUser 
+    // });
  });

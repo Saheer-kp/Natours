@@ -111,6 +111,7 @@ exports.protect = catchAsync(async (req, res, next) => {
         
     //gerant access
     req.user = authUser;
+    res.locals.user = authUser;
     next();
     
 });

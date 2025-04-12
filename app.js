@@ -45,6 +45,9 @@ app.use('/api', limiter);
 //this is a middleware provided by express to inspect the POST request body, without this cant get rquest data
 app.use(express.json()); 
 
+//middleware to inspect form data. required when dealing with forms
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
 //middleware to sanitize noSql injection eg: { $gt: ""}
 app.use(mongoSanitize());
 
