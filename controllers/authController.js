@@ -4,7 +4,7 @@ const User = require('../models/userModal');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { verify } = require('crypto');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 const crypto = require('crypto');
 const factory = require('./../controllers/factoryHandler');
 
@@ -49,6 +49,9 @@ exports.signup = catchAsync(async (req, res, next) => {
         passwordConfirm: req.body.passwordConfirm,
         role: req.body.role
     })
+
+    const url = `${req.protocol}://${req.get('host')}/profile`;
+    await new Email(user, url).sendWelcome();
 
     sendToken(user, 201, res);
 
@@ -175,16 +178,18 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     //send email
     const resetUrl= `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`;
 
-    const message = `Your password reset link \n ${resetUrl}`; 
+    // const message = `Your password reset link \n ${resetUrl}`; 
 
    try {
-    await sendEmail(
-        {
-            email: user.email,
-            subject: 'Your password reset link',
-            message
-        }
-    );
+    // await sendEmail(
+    //     {
+    //         email: user.email,
+    //         subject: 'Your password reset link',
+    //         message
+    //     }
+    // );
+
+    await new Email(user, resetUrl).sendPasswordReset();
 
     res.status(200).json({
         status: 'success',
@@ -194,7 +199,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
-
+    console.log(error);
+    
     return next(new AppError('mail sending failed', 500));
    }
     

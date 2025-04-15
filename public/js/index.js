@@ -1,10 +1,31 @@
 import '@babel/polyfill' //this will allow to browser to work new javascript features
 import { login, logout } from "./login";
 import { updateSettings } from './updateSettings';
+import { bookTour } from './booking';
 
 
 const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
+const bookBtn = document.getElementById('book-tour');
+const map = document.getElementById('map');
+
+if(map)
+{
+    const locations = JSON.parse(document.getElementById('map').dataset.locations);
+    // Initialize the map
+    const map = L.map('map').setView([25.781842, -80.128473], 8); // Center the map on the first location
+
+
+    // Add markers for each location
+    locations.forEach(location => {
+        const marker = L.marker([location.coordinates[1], location.coordinates[0]])
+            .addTo(map)
+            .bindPopup(`<b>${location.description}</b><br>Day: ${location.day}`);
+    });
+}
+
+
+
 const updateProfileForm = document.querySelector('.form-user-data');
 const updatePasswordForm = document.querySelector('.form-user-password');
 
@@ -49,3 +70,10 @@ if(updatePasswordForm)
         document.querySelector('.save-password-btn').textContent = 'Save Password';
     });
     
+if(bookBtn) 
+    bookBtn.addEventListener('click', async e => {
+        e.target.textContent = 'Processing...';
+        const {tourId} = e.target.dataset;  //auto camelcase
+        bookTour(tourId);
+    
+    })

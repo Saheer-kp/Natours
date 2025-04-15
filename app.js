@@ -3,6 +3,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const morgan = require('morgan');
@@ -13,6 +14,7 @@ const xssClean = require('xss-clean');
 const path = require('path');
 const hpp = require('hpp'); 
 const cookieParser = require('cookie-parser');
+const csp = require('express-csp');
 const app = express(); 
 
 
@@ -30,6 +32,84 @@ app.use(express.static(path.join(__dirname, 'public'))); // using path module - 
 
 //security middleware
 app.use(helmet());
+
+
+csp.extend(app, {
+  policy: {
+    directives: {
+      'default-src': ['self'],
+      'style-src': ['self', 'unsafe-inline', 'https:'],
+      'font-src': ['self', 'https://fonts.gstatic.com'],
+      'script-src': [
+        'self',
+        'unsafe-inline',
+        'data',
+        'blob',
+        'https://js.stripe.com',
+        'https://*.mapbox.com',
+        'https://*.cloudflare.com/',
+        'https://unpkg.com',
+        'https://a.tile.openstreetmap.org',
+        'https://bundle.js:8828',
+        'ws://localhost:56558/',
+      ],
+      'worker-src': [
+        'self',
+        'unsafe-inline',
+        'data:',
+        'blob:',
+        'https://*.stripe.com',
+        'https://*.mapbox.com',
+        'https://*.cloudflare.com/',
+        'https://bundle.js:8828',
+        'https://unpkg.com',
+        'https://a.tile.openstreetmap.org',
+        'https://bundle.js:*',
+        'ws://localhost:*/',
+      ],
+      'frame-src': [
+        'self',
+        'unsafe-inline',
+        'data:',
+        'blob:',
+        'https://*.stripe.com',
+        'https://*.mapbox.com',
+        'https://*.cloudflare.com/',
+        'https://unpkg.com',
+        'https://a.tile.openstreetmap.org',
+        'https://bundle.js:*',
+        'ws://localhost:*/',
+      ],
+      'img-src': [
+        'self',
+        'unsafe-inline',
+        'data:',
+        'blob:',
+        'https://*.stripe.com',
+        'https://*.mapbox.com',
+        'https://*.cloudflare.com/',
+        'https://unpkg.com',
+        'https://a.tile.openstreetmap.org',
+        'https://bundle.js:*',
+        'ws://localhost:*/',
+      ],
+      'connect-src': [
+        'self',
+        'unsafe-inline',
+        'data:',
+        'blob:',
+        // 'wss://<HEROKU-SUBDOMAIN>.herokuapp.com:<PORT>/',
+        'https://*.stripe.com',
+        'https://*.mapbox.com',
+        'https://*.cloudflare.com/',
+        'https://unpkg.com',
+        'https://a.tile.openstreetmap.org',
+        'https://bundle.js:*',
+        'ws://localhost:*/',
+      ],
+    },
+  },
+});
 
 app.use(cookieParser());
 
@@ -100,6 +180,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 // route handler
 app.all('*', (req, res, next) => {
