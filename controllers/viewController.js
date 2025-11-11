@@ -5,57 +5,62 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.overView = catchAsync(async (req, res, next) => {
-
-    const tours = await Tour.find()
-    res.status(200).render('overview', {
-     title: 'All Tours',
-     tours
-    });
+  const tours = await Tour.find();
+  res.status(200).render('overview', {
+    title: 'All Tours',
+    tours,
+  });
 });
 
 exports.tour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findOne({ slug: req.params.slug }).populate('reviews');
-    // return res.status(200).json(tour);
+  const tour = await Tour.findOne({ slug: req.params.slug }).populate(
+    'reviews'
+  );
+  // return res.status(200).json(tour);
 
-    if(!tour)
-        return next(new AppError('Oops, The tour data is not found..', 404))
-    res.status(200).render('tour', {
-     title: tour.name,
-     tour
-    });
- });
+  if (!tour)
+    return next(new AppError('Oops, The tour data is not found..', 404));
+  res.status(200).render('tour', {
+    title: tour.name,
+    tour,
+  });
+});
 
 exports.myTours = catchAsync(async (req, res, next) => {
-    const bookings = await Booking.find({ user: req.user.id });
+  const bookings = await Booking.find({ user: req.user.id });
 
-    const tourIds = bookings.map(el => el.tour);
-    const tours = await Tour.find({ _id: { $in: tourIds } });
-    res.status(200).render('overview', {
-        title: 'My Tours',
-        tours
-    });
- });
+  const tourIds = bookings.map((el) => el.tour);
+  const tours = await Tour.find({ _id: { $in: tourIds } });
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours,
+  });
+});
 
- exports.profile = catchAsync(async (req, res, next) => {
-    res.status(200).render('account', {
-        title: 'Profile',
-    });
- });
- 
- exports.updateProfile = catchAsync(async (req, res, next) => {
-    console.log(req.body);
-    const updateUser = await User.findByIdAndUpdate(req.user.id, {
-        name: req.body.name,
-        email: req.body.email,
-    }, {
-        new: true,  //get the updated document as new refreshed data
-        runValidators: true
-    });
+exports.profile = catchAsync(async (req, res, next) => {
+  res.status(200).render('account', {
+    title: 'Profile',
+  });
+});
 
-    res.locals.user = updateUser;
-    res.status(200).redirect('/profile');
-    // res.status(200).render('account', {
-    //     title: 'Profile',
-    //     user: updateUser 
-    // });
- });
+exports.updateProfile = catchAsync(async (req, res, next) => {
+  console.log(req.body);
+  const updateUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+    },
+    {
+      new: true, //get the updated document as new refreshed data
+      runValidators: true,
+    }
+  );
+
+  res.locals.user = updateUser;
+  res.status(200).redirect('/profile');
+  // res.status(200).render('account', {
+  //     title: 'Profile',
+  //     user: updateUser
+  // });
+});
