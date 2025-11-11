@@ -8,7 +8,10 @@
     "prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
-    "watch:bundle": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
+    "watch:bundle": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
+    "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
+    "build": "npm run build:js",
+    "start": "node server.js"
   },
   "author": "Shaheer",
   "license": "ISC",
@@ -42,5 +45,8 @@
     "ndb": "^1.1.5",
     "nodemon": "^3.1.9",
     "parcel-bundler": "^1.12.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
