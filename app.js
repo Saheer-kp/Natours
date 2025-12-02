@@ -12,17 +12,14 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const path = require('path');
-const hpp = require('hpp'); 
+const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const csp = require('express-csp');
-const app = express(); 
-
+const app = express();
 
 //setting up pug template as view engine - (another one is ejs)
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
-
-
 
 //*****  GLOBAL MIDDLEWARE STACK   *****/
 
@@ -30,100 +27,87 @@ app.set('views', path.join(__dirname, 'views'));
 // app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public'))); // using path module - recommented to avoid issues with path
 
-//security middleware
-app.use(helmet());
-
-
-csp.extend(app, {
-  policy: {
-    directives: {
-      'default-src': ['self'],
-      'style-src': ['self', 'unsafe-inline', 'https:'],
-      'font-src': ['self', 'https://fonts.gstatic.com'],
-      'script-src': [
-        'self',
-        'unsafe-inline',
-        'data',
-        'blob',
-        'https://js.stripe.com',
-        'https://*.mapbox.com',
-        'https://*.cloudflare.com/',
-        'https://unpkg.com',
-        'https://a.tile.openstreetmap.org',
-        'https://bundle.js:8828',
-        'ws://localhost:56558/',
-      ],
-      'worker-src': [
-        'self',
-        'unsafe-inline',
-        'data:',
-        'blob:',
-        'https://*.stripe.com',
-        'https://*.mapbox.com',
-        'https://*.cloudflare.com/',
-        'https://bundle.js:8828',
-        'https://unpkg.com',
-        'https://a.tile.openstreetmap.org',
-        'https://bundle.js:*',
-        'ws://localhost:*/',
-      ],
-      'frame-src': [
-        'self',
-        'unsafe-inline',
-        'data:',
-        'blob:',
-        'https://*.stripe.com',
-        'https://*.mapbox.com',
-        'https://*.cloudflare.com/',
-        'https://unpkg.com',
-        'https://a.tile.openstreetmap.org',
-        'https://bundle.js:*',
-        'ws://localhost:*/',
-      ],
-      'img-src': [
-        'self',
-        'unsafe-inline',
-        'data:',
-        'blob:',
-        'https://*.stripe.com',
-        'https://*.mapbox.com',
-        'https://*.cloudflare.com/',
-        'https://unpkg.com',
-        'https://a.tile.openstreetmap.org',
-        'https://bundle.js:*',
-        'ws://localhost:*/',
-      ],
-      'connect-src': [
-        'self',
-        'unsafe-inline',
-        'data:',
-        'blob:',
-        // 'wss://<HEROKU-SUBDOMAIN>.herokuapp.com:<PORT>/',
-        'https://*.stripe.com',
-        'https://*.mapbox.com',
-        'https://*.cloudflare.com/',
-        'https://unpkg.com',
-        'https://a.tile.openstreetmap.org',
-        'https://bundle.js:*',
-        'ws://localhost:*/',
-      ],
-    },
-  },
-});
-
+// csp.extend(app, {
+//   policy: {
+//     directives: {
+//       'default-src': ['self'],
+//       'style-src': ['self', 'unsafe-inline', 'https:'],
+//       'font-src': ['self', 'https://fonts.gstatic.com'],
+//       'script-src': [
+//         'self',
+//         'unsafe-inline',
+//         'data',
+//         'blob',
+//         'https://js.stripe.com',
+//         'https://*.mapbox.com',
+//         'https://*.cloudflare.com/',
+//         'https://unpkg.com',
+//         'https://a.tile.openstreetmap.org',
+//       ],
+//       'worker-src': [
+//         'self',
+//         'unsafe-inline',
+//         'data:',
+//         'blob:',
+//         'https://*.stripe.com',
+//         'https://*.mapbox.com',
+//         'https://*.cloudflare.com/',
+//         'https://unpkg.com',
+//         'https://a.tile.openstreetmap.org',
+//       ],
+//       'frame-src': [
+//         'self',
+//         'unsafe-inline',
+//         'data:',
+//         'blob:',
+//         'https://*.stripe.com',
+//         'https://*.mapbox.com',
+//         'https://*.cloudflare.com/',
+//         'https://unpkg.com',
+//         'https://a.tile.openstreetmap.org',
+//       ],
+//       'img-src': [
+//         'self',
+//         'unsafe-inline',
+//         'data:',
+//         'blob:',
+//         'https://*.stripe.com',
+//         'https://*.mapbox.com',
+//         'https://*.cloudflare.com/',
+//         'https://unpkg.com',
+//         'https://a.tile.openstreetmap.org',
+//       ],
+//       'connect-src': [
+//         'self',
+//         'unsafe-inline',
+//         'data:',
+//         'blob:',
+//         // 'wss://<HEROKU-SUBDOMAIN>.herokuapp.com:<PORT>/',
+//         'https://*.stripe.com',
+//         'https://*.mapbox.com',
+//         'https://*.cloudflare.com/',
+//         'https://unpkg.com',
+//         'https://a.tile.openstreetmap.org',
+//         'ws://localhost:56558/', // Add specific port
+//         'ws://localhost:52439/', // Add your problematic port
+//         'ws://localhost:*', // Wildcard for development
+//       ],
+//     },
+//   },
+// });
 app.use(cookieParser());
 
 //rate limit middleware
 const limiter = rateLimit({
-  max:100,
+  max: 100,
   windowMs: 60 * 60 * 1000,
-  message: "too many requests",
+  message: 'too many requests',
 });
 
 app.use('/api', limiter);
 
 //this is a middleware provided by express to inspect the POST request body, without this cant get rquest data
-app.use(express.json()); 
+app.use(express.json());
 
 //middleware to inspect form data. required when dealing with forms
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
@@ -135,29 +119,27 @@ app.use(mongoSanitize());
 app.use(xssClean());
 
 //middleware to avoid parameter pollution - eg: query string ?sort=quantity&sort=price
-app.use(hpp({
-  //whitlisting properties to allow duplicates
-  whitelist: ['duration', 'ratingsQuantity']
-}));
-
+app.use(
+  hpp({
+    //whitlisting properties to allow duplicates
+    whitelist: ['duration', 'ratingsQuantity'],
+  })
+);
 
 //middleware to logging
-if(process.env.NODE_ENV === 'development')
-  app.use(morgan('dev'));
-
-
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // custom middlewares //- it is important to define middleware at the beginning..
 app.use((req, res, next) => {
-    // console.log('middleware');
-    console.log(req.cookies, 'cookie');
-    
-    next();
+  // console.log('middleware');
+  console.log(req.cookies, 'cookie');
+
+  next();
 });
-app.use((req, res, next) => { 
-    req.date = new Date().toDateString();
-    // console.log(req.date);
-    next();
+app.use((req, res, next) => {
+  req.date = new Date().toDateString();
+  // console.log(req.date);
+  next();
 });
 
 // app.get('/api/v1/tours', getTours);
@@ -171,10 +153,8 @@ app.use((req, res, next) => {
 // //route mouting - assing the route to the router
 // const userRouter = express.Router();
 
-
 // view routes
 app.use('/', viewRouter);
-
 
 //api routes
 app.use('/api/v1/users', userRouter);
@@ -184,7 +164,7 @@ app.use('/api/v1/bookings', bookingRouter);
 
 // route handler
 app.all('*', (req, res, next) => {
-  // res.status(404).json({   
+  // res.status(404).json({
   //   staus: false,
   //   message: `The requested url ${req.originalUrl} does not exist`,
   // });
@@ -194,11 +174,12 @@ app.all('*', (req, res, next) => {
   // err.statusCode = 404;
   // next(err);
 
-  next(new AppError(`The requested url ${req.originalUrl} does not exist`, 404));
+  next(
+    new AppError(`The requested url ${req.originalUrl} does not exist`, 404)
+  );
 });
 
 // GLOBAL ERROR HANDLING MIDDLEWARE
 app.use(globalErrorHandler);
 
 module.exports = app;
-

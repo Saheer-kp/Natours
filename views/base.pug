@@ -5,13 +5,14 @@ html
             meta(charset="UTF-8")
             meta(name="viewport", content="width=device-width, initial-scale=1.0")
             //- meta(http-equiv="Content-Security-Policy", content="script-src 'self' https://cdnjs.cloudflare.com https://js.stripe.com https://unpkg.com ws://localhost:51052; object-src 'none'; connect-src 'self' ws://localhost:53141 ws://localhost:51052; img-src 'self' 'unsafe-inline' data: blob: https://*.stripe.com https://*.mapbox.com https://*.cloudflare.com/ https://unpkg.com https://a.tile.openstreetmap.org https://c.tile.openstreetmap.org;")
-            meta(http-equiv="Content-Security-Policy" content="script-src 'self' https://cdnjs.cloudflare.com https://js.stripe.com https://unpkg.com ws://localhost:51052; object-src 'none'; connect-src 'self' ws://localhost:53141 ws://localhost:51052; img-src 'self' 'unsafe-inline' data: blob: https://*.stripe.com https://*.mapbox.com https://*.cloudflare.com/ https://unpkg.com https://a.tile.openstreetmap.org https://c.tile.openstreetmap.org;")
-            //- meta(http-equiv="Content-Security-Policy", content="worker-src blob:; child-src blob: gap:; img-src 'self' blob: data:; default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:")
+            //- meta(http-equiv="Content-Security-Policy" content="script-src 'self' https://cdnjs.cloudflare.com https://js.stripe.com https://unpkg.com ws://localhost:51052; object-src 'none'; connect-src 'self' ws://localhost:53141 ws://localhost:51052; img-src 'self' 'unsafe-inline' data: blob: https://*.stripe.com https://*.mapbox.com https://*.cloudflare.com/ https://unpkg.com https://a.tile.openstreetmap.org https://c.tile.openstreetmap.org https://b.tile.openstreetmap.org/8/70/108.png;")
+            meta(http-equiv="Content-Security-Policy" content="img-src 'self' data: blob: https://*.stripe.com https://*.mapbox.com https://*.cloudflare.com https://unpkg.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org; connect-src 'self' ws://localhost:* ws://localhost:52439/ https://*.stripe.com https://*.mapbox.com https://*.cloudflare.com https://*.tile.openstreetmap.org;")
             title Natours | #{title}
             link(rel='stylesheet', href='/css/style.css')
             link(rel='shortcut icon', href='/img/favicon.png', type="image/png")
             link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
-            link(rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="")
+            //- link(rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="")
+            link(rel="stylesheet" href='/js/leaflet/dist/leaflet.css')
 
     body
         //- HEADER
@@ -27,5 +28,6 @@ html
         //- script(src='/js/mapbox.js')
         //- script(src='/js/login.js')
         script(src='https://js.stripe.com/v3/')
-        script(src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="")
+        //- script(src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="")
+        script(src='/js/leaflet/dist/leaflet.js')
         script(src='/js/bundle.js')

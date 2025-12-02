@@ -55,13 +55,23 @@ if (map) {
   const locations = JSON.parse(
     document.getElementById('map').dataset.locations
   );
-  // Initialize the map
-  const map = L.map('map').setView([25.781842, -80.128473], 8); // Center the map on the first location
 
+  console.log(locations);
+
+  // Initialize the map
+  // Initialize the map with first location or default center
+  const initialLat = locations[0] ? locations[0].coordinates[1] : 25.781842;
+  const initialLng = locations[0] ? locations[0].coordinates[0] : -80.128473;
+
+  const mapp = L.map('map').setView([initialLat, initialLng], 8);
+  // const mapp = L.map('map').setView([25.781842, -80.128473], 8); // Center the map on the first location
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+  }).addTo(mapp);
   // Add markers for each location
   locations.forEach((location) => {
     const marker = L.marker([location.coordinates[1], location.coordinates[0]])
-      .addTo(map)
+      .addTo(mapp)
       .bindPopup(`<b>${location.description}</b><br>Day: ${location.day}`);
   });
 }
