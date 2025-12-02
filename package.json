@@ -11,7 +11,8 @@
     "watch:bundle": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build": "npm run build:js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "vercel-build": "npm run build"
   },
   "author": "Shaheer",
   "license": "ISC",

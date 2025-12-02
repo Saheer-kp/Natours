@@ -30,10 +30,13 @@ mongoose
 // });
 
 if (require.main === module) {
-  const port = process.env.PORT || 3000;
-  const server = app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    // For local development
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      console.log(`App running on port ${port}...`);
+    });
+  }
 
   process.on('unhandledRejection', (err) => {
     console.log(err.name, err.message);

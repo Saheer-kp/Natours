@@ -27,6 +27,7 @@ app.set('views', path.join(__dirname, 'views'));
 // app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public'))); // using path module - recommented to avoid issues with path
 
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
 // csp.extend(app, {
 //   policy: {
 //     directives: {
