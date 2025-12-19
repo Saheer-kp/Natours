@@ -114,10 +114,6 @@ Atached a .env.exampe file in root directory
 - `mongoose`: MongoDB ODM
 - `dotenv`: Environment configuration
 
-### Development Dependencies
-
-[Add your dev dependencies here]
-
 ## Scripts
 
 - `npm start`: Start the application in production mode
