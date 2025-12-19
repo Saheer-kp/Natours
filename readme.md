@@ -94,7 +94,7 @@ The server runs with production optimizations.
 
 ## Environment Variables
 
-Atached a .env.exampe file in root directory
+Have .env.exampe file in root directory
 
 ## Error Codes
 
