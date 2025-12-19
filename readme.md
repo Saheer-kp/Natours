@@ -94,16 +94,7 @@ The server runs with production optimizations.
 
 ## Environment Variables
 
-| Variable      | Description                                             | Default     |
-| ------------- | ------------------------------------------------------- | ----------- |
-| `DATABASE`    | MongoDB connection string with `<PASSWORD>` placeholder | Required    |
-| `DB_PASSWORD` | MongoDB password                                        | Required    |
-| `PORT`        | Server port                                             | 3000        |
-| `NODE_ENV`    | Environment (development/production)                    | development |
-
-## API Documentation
-
-[Add your API endpoints documentation here]
+Atached a .env.exampe file in root directory
 
 ## Error Codes
 
